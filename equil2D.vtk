@@ -1,0 +1,17 @@
+# vtk DataFile Version 2.0
+Tetrahedral grid created by PHG 0.9.3.
+BINARY
+DATASET UNSTRUCTURED_GRID
+POINTS 0 float
+
+CELLS 0 0
+
+CELL_TYPES 0
+
+CELL_DATA 0
+
+SCALARS region_mark int 1
+LOOKUP_TABLE default
+
+SCALARS submesh_no int 1
+LOOKUP_TABLE default
