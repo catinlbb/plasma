@@ -35,9 +35,26 @@ get_token(FILE *fp, char *token)
 
 static GRID *g_;
 
+
+
+static int
+comp_face2(const void *p0, const void *p1)
+/* compares two element faces: (elem index, face no, type)
+ * acoording to first to component */
+{
+    INT (*f0)[3] = (void *)p0, (*f1)[3] = (void *)p1;
+    int i;
+
+    if ((i = (*f0)[0] - (*f1)[0]) != 0)
+	return i;
+    return (*f0)[1] - (*f1)[1];
+}
+
+
+
 static void
 process_triangle(GRID *g, INT nlist, INT (*list)[3], INT *vtypes)
-/* assign boundary types (e->bound_type[]) using the list of triangles */
+/* assign boundary types (e->bound_type[]) using the list of edges */
 {
     /* Note: each face is stored as (elem, face, type) */
     INT i;
@@ -121,33 +138,36 @@ phgImportMedit2D(GRID *g, const char *filename, BOOLEAN parallel)
 #define ERROR	{n = __LINE__; goto error;}
 
   while (TRUE) {
+
     if (!get_token(fp, token))
       break;
   next_token:
+
     if (!strcasecmp(token, "End")) {
       break;
     }
     else if (!strcasecmp(token, "Vertices")) {
+
       BOOLEAN flag = FALSE;
       if (!get_token(fp, token))
 	ERROR
 	  n = atoi(token);
       phgInfo(2, "number of vertices: %d\n", n);
+
       g->verts = phgNewVertices(n);
+
       vtypes = phgAlloc(n * sizeof(*vtypes)); 
       for (i = 0; i < n; i++) {
 	READ_NUMBER
-	  g->verts[i][0] = atof(token);
+	g->verts[i][0] = atof(token);
 	if (!get_token(fp, token))
 	  ERROR
-	    g->verts[i][1] = atof(token);
+	g->verts[i][1] = atof(token);
+	/* the type of the vertex */
 	if (!get_token(fp, token))
 	  ERROR
-	    /* the type of the vertex */
-	    if (!get_token(fp, token))
-	      ERROR
-		if ((vtypes[i] = atoi(token)) != 0)
-		  flag = TRUE;
+	if ((vtypes[i] = atoi(token)) != 0)
+	    flag = TRUE;
       }
       g->nvert_global = g->nvert = i;
       if (!flag) {
@@ -164,6 +184,7 @@ phgImportMedit2D(GRID *g, const char *filename, BOOLEAN parallel)
       phgInfo(2, "number of edges: %d \n", n);
       list2 = phgRealloc_(list2, (n + nlist2) * sizeof(*list2),
 			  nlist4 * sizeof(*list2));
+
       for (i = 0; i < n; i++) {
 	READ_NUMBER
 	  list2[nlist2][0] = atoi(token) - 1;
@@ -177,6 +198,7 @@ phgImportMedit2D(GRID *g, const char *filename, BOOLEAN parallel)
 	qsort(list2[nlist2++], 2, sizeof(INT), phgCompINT);
 
       }
+      g->nedge_global = g->nedge = i;
       if (nlist2 == 0) {
 	phgFree(list2);
 	list2 = NULL;
@@ -188,6 +210,8 @@ phgImportMedit2D(GRID *g, const char *filename, BOOLEAN parallel)
       if (!get_token(fp, token))
 	ERROR
       n = atoi(token);
+
+ 
       phgInfo(2, "number of triangles: %d\n", n);
       g->roots = phgReallocElements(g->roots, nlistt, n + nlistt);
       for (i = 0; i < n; i++) {
@@ -285,6 +309,8 @@ phgImportMedit2D(GRID *g, const char *filename, BOOLEAN parallel)
 	goto next_token;
     }
     else {
+
+      //  printf("@@@@  %s\n",token);
 #if 0
       int lineno = 1;
       size_t pos, current_pos = ftell(fp);

@@ -1,4 +1,5 @@
 #include "phg.h"
+#include "phg2D.h"
 #include <math.h>
 #include <string.h>
 #include <limits.h>	/* PATH_MAX */

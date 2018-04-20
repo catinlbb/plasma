@@ -8,20 +8,32 @@ int main(int argc, char* argv[])
 
   char *fn = "../mesh_data/plasma2D.mesh";
 
+  RegisterParallelFunction(phgExportVTK2D_);
   phgInit(&argc, &argv);
 
+
+
+
+
+
+  
   printf("@@@Dim=%d\n", Dim);
   g = phgNewGrid(-1);
 
-  printf("@@@@@@@@@ NVert=%d  NEdge=%d\n", NVert, NEdge);
   
   if (!phgImport2D(g, fn, FALSE))
     phgError(1, "can't read file \"%s\".\n", fn);
   
+  
+  printf("@@@@@@@@@ gele=%d  gvert=%d\n", g->nelem, g->nvert);
+
+
+
+#if 0
   phgPrintf("Final mesh written to \"%s\".\n",
-	    phgExportVTK(g, "equil2D.vtk", NULL));
+	    phgExportVTK2D(g, "equil2D.vtk", NULL));
 
-
+#endif
 
   
   phgFreeGrid(&g);

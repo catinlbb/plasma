@@ -17,7 +17,7 @@ distclean: clean
 lib:
 	@(cd ../src; $(MAKE))
 
-PLASMA_OFILES = utils2D.o medit2D.o  equil2D.o
+PLASMA_OFILES = utils2D.o medit2D.o vtk2D.o  equil2D.o
 
 
 
